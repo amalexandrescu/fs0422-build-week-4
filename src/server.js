@@ -8,6 +8,8 @@ import {
   genericErrorHandler,
 } from './errorHandlers.js'
 import postsRouter from './apis/posts/index.js'
+import usersRouter from "./apis/users/index.js";
+
 
 const server = express()
 const port = process.env.PORT || 3001
