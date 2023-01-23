@@ -2,11 +2,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import listEndpoints from "express-list-endpoints";
-import {
-  badRequestHandler,
-  notFoundHandler,
-  genericErrorHandler,
-} from "./errorHandlers.js";
+import experienceRouter from "./apis/experiences/index.js";
+import { badRequestHandler, notFoundHandler, genericErrorHandler } from "./errorHandlers.js";
 
 const server = express();
 const port = process.env.PORT || 3001;
@@ -17,6 +14,8 @@ server.use(cors());
 server.use(express.json());
 
 //ENDPOINTS
+
+server.use("/users", experienceRouter);
 
 //ERROR HANDLERS
 
