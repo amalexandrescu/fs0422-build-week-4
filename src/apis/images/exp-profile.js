@@ -6,6 +6,11 @@ import UsersModel from "../users/model.js";
 import experienceModel from "../experiences/model.js";
 import { pipeline } from "stream";
 import json2csv from "json2csv";
+import fs from "fs-extra";
+import { getExpJsonReadableStream } from "../../lib/fs-tools.js";
+import { Readable } from "stream";
+
+const { createReadStream } = fs;
 
 const pictureRouter = express.Router();
 
@@ -32,14 +37,21 @@ pictureRouter.post("/:userName/experiences/:expId/picture", pictureUploaderToClo
 
 pictureRouter.get("/:userName/experiences/CSV", async (req, res, next) => {
   try {
-    //res.setHeader("Content-Disposition", "attachment; filename=books.csv");
-    // SOURCE (readable stream on books.json) --> TRANSFORM (json into csv) --> DESTINATION (response)
+    res.setHeader("Content-Disposition", "attachment; filename=books.csv");
+
     const theUser = await UsersModel.findOne({ username: req.params.userName }).populate({ path: "experience" });
-    const source = theUser.experience;
-    const transform = new json2csv.Transform({ fields: ["role", "company", "startDate"] });
-    const destination = res;
-    pipeline(source, transform, destination, (err) => {
-      if (err) console.log(err);
+    const experienceArray = theUser.experience;
+
+    const readableArray = await Readable.from(experienceArray);
+    readableArray.on("data", (row) => {
+      console.log("ROW:", row);
+
+      const source = row;
+      const transform = new json2csv.Transform({ objectMode: true, fields: ["company"] });
+      const destination = res;
+      pipeline(source, transform, destination, (err) => {
+        if (err) console.log(err);
+      });
     });
   } catch (error) {
     next(error);
