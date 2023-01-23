@@ -2,11 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import listEndpoints from "express-list-endpoints";
-import {
-  badRequestHandler,
-  notFoundHandler,
-  genericErrorHandler,
-} from "./errorHandlers.js";
+import { badRequestHandler, notFoundHandler, genericErrorHandler } from "./errorHandlers.js";
 import usersRouter from "./apis/users/index.js";
 
 const server = express();
@@ -18,8 +14,6 @@ server.use(cors());
 server.use(express.json());
 
 //ENDPOINTS
-
-server.use("/users", usersRouter);
 
 //ERROR HANDLERS
 
