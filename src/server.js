@@ -14,7 +14,7 @@ server.use(cors());
 server.use(express.json());
 
 //ENDPOINTS
-
+server.use("/users", usersRouter);
 //ERROR HANDLERS
 
 server.use(badRequestHandler);
