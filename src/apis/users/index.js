@@ -40,7 +40,7 @@ usersRouter.get("/", async (req, res, next) => {
 
     const total = await UsersModel.countDocuments(mongoQuery.criteria);
     console.log("total", total);
-    const users = await UsersModel.find(mongoQuery.criteria, mongoQuery.options.fields).sort(mongoQuery.sort).skip(mongoQuery.skip).limit(mongoQuery.limit);
+    const users = await UsersModel.find(mongoQuery.criteria, mongoQuery.options.fields).sort(mongoQuery.sort).skip(mongoQuery.skip).limit(mongoQuery.limit).populate({ path: "experience" });
 
     res.send({
       links: mongoQuery.links("http://localhost:3001/users", total),

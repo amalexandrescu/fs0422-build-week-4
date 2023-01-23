@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import listEndpoints from "express-list-endpoints";
 import { badRequestHandler, notFoundHandler, genericErrorHandler } from "./errorHandlers.js";
 import usersRouter from "./apis/users/index.js";
+import pictureRouter from "./apis/images/exp-profile.js";
 
 const server = express();
 const port = process.env.PORT || 3001;
@@ -15,6 +16,7 @@ server.use(express.json());
 
 //ENDPOINTS
 server.use("/users", usersRouter);
+server.use("/profile", pictureRouter);
 //ERROR HANDLERS
 
 server.use(badRequestHandler);
