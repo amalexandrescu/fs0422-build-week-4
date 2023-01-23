@@ -1,8 +1,21 @@
-import e from "express";
 import express from "express";
 import createHttpError from "http-errors";
 import UsersModel from "./model.js";
 import q2m from "query-to-mongo";
+import { getPdfReadableStream } from "./pdfTools.js";
+import { pipeline } from "stream";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import multer from "multer";
+
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: "build-week-4-linkedin-project",
+    },
+  }),
+}).single("userPicture");
 
 const usersRouter = express.Router();
 
@@ -125,26 +138,48 @@ usersRouter.put("/:userId", async (req, res, next) => {
   }
 });
 
-usersRouter.post("/:userId/picture", async (req, res, next) => {
-  try {
-    //we get from req.body the picture we want to upload
-    const updatedUser = await UsersModel.findByIdAndUpdate(
-      req.params.userId,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (updatedUser) {
-      res.send(updatedUser);
-    } else {
-      next(createHttpError(404, `User with id ${req.params.userId} not found`));
+usersRouter.post(
+  "/:userId/picture",
+  cloudinaryUploader,
+  async (req, res, next) => {
+    try {
+      //we get from req.body the picture we want to upload
+      console.log(req.file.path);
+      const updatedUser = await UsersModel.findByIdAndUpdate(
+        req.params.userId,
+        { image: req.file.path },
+        { new: true, runValidators: true }
+      );
+      if (updatedUser) {
+        res.send(updatedUser);
+      } else {
+        next(
+          createHttpError(404, `User with id ${req.params.userId} not found`)
+        );
+      }
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 usersRouter.get("/profile/:userId/CV", async (req, res, next) => {
   try {
+    res.setHeader("Content-Disposition", "attachment; filename=test.pdf");
+
+    const user = await UsersModel.findById(req.params.userId);
+
+    if (user) {
+      const source = await getPdfReadableStream(user, req.params.userId);
+
+      const destination = res;
+
+      pipeline(source, destination, (err) => {
+        if (err) console.log(err);
+      });
+    } else {
+      next(createHttpError(404, `User with id ${req.params.userId} not found`));
+    }
   } catch (error) {
     next(error);
   }
