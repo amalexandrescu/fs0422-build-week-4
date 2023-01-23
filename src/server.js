@@ -9,6 +9,7 @@ import {
 } from './errorHandlers.js'
 import postsRouter from './apis/posts/index.js'
 import usersRouter from "./apis/users/index.js";
+import pictureRouter from "./apis/images/exp-profile.js";
 
 
 const server = express()
@@ -20,7 +21,10 @@ server.use(cors())
 server.use(express.json())
 
 //ENDPOINTS
-server.use('/posts', postsRouter)
+
+server.use("/users", usersRouter);
+server.use("/profile", pictureRouter);
+server.use('/posts', postsRouter);
 
 //ERROR HANDLERS
 
