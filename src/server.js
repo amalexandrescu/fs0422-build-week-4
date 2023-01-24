@@ -30,10 +30,10 @@ server.use(
     },
   })
 );
+
 server.use(express.json());
 
 //ENDPOINTS
-
 server.use("/users", usersRouter);
 server.use("/profile", pictureRouter);
 server.use("/posts", postsRouter);

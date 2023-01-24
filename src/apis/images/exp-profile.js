@@ -42,16 +42,17 @@ pictureRouter.get("/:userName/experiences/CSV", async (req, res, next) => {
     const theUser = await UsersModel.findOne({ username: req.params.userName }).populate({ path: "experience" });
     const experienceArray = theUser.experience;
 
-    const readableArray = await Readable.from(experienceArray);
-    readableArray.on("data", (row) => {
-      console.log("ROW:", row);
+    const source = new Readable({
+      read(size) {
+        this.push(JSON.stringify(experienceArray));
+        this.push(null);
+      },
+    });
 
-      const source = row;
-      const transform = new json2csv.Transform({ objectMode: true, fields: ["company"] });
-      const destination = res;
-      pipeline(source, transform, destination, (err) => {
-        if (err) console.log(err);
-      });
+    const transform = new json2csv.Transform({ objectMode: true, fields: ["company", "role", "startDate"] });
+    const destination = res;
+    pipeline(source, transform, destination, (err) => {
+      if (err) console.log(err);
     });
   } catch (error) {
     next(error);
