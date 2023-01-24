@@ -7,7 +7,7 @@ const experienceSchema = new Schema(
     role: { type: String, required: true },
     company: { type: String, required: true },
     startDate: { type: String, required: true },
-    endDate: { type: Date, default: null },
+    endDate: { type: String, default: null },
     description: { type: String },
     area: { type: String },
     image: { type: String },
