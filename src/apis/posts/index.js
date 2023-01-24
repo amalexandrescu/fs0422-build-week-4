@@ -31,10 +31,12 @@ postsRouter.post('/', async (request, response, next) => {
 //Get all posts
 postsRouter.get('/', async (request, response, next) => {
   try {
-    const getPosts = await posts.find({})
+    const getPosts = await posts
+      .find({})
+      .populate({ path: 'user', select: 'name surname image' })
     response.status(200).send(getPosts)
   } catch (err) {
-    err
+    next(err)
   }
 })
 
