@@ -4,10 +4,12 @@ import PdfPrinter from "pdfmake";
 export const getPdfReadableStream = async (user, userId) => {
   const createBase64Image = async (url) => {
     const encodedbase64 = await imageToBase64(url);
-    console.log(encodedbase64);
+    // console.log(encodedbase64);
     return "data:image/jpeg;base64, " + encodedbase64;
     // return encodedbase64;
   };
+  console.log("user.image", user.image);
+  console.log("user.experience", user.experience);
 
   const fonts = {
     Helvetica: {
@@ -21,29 +23,76 @@ export const getPdfReadableStream = async (user, userId) => {
   const printer = new PdfPrinter(fonts);
 
   const content = [
-    { text: "CV", style: "header", alignment: "center" },
     {
-      text: `Name: ${user.name} ${user.surname}`,
-      style: "subheader",
+      text: "Custom CV\n\n\n\n",
+      style: "header",
+      alignment: "center",
+      color: "grey",
     },
-    { image: "postImage", width: 150, height: 150 },
-    { text: `email: ${user.email}`, style: "subheader" },
     {
-      text: `Currently working as: ${user.title} in ${user.area}`,
-      style: "subheader",
+      columns: [
+        { image: "postImage", width: 80, height: 80 },
+        [
+          { text: "\n" },
+          { text: `${user.name} ${user.surname}`, lineHeight: 2 },
+          { text: `${user.email}`, style: "", lineHeight: 2 },
+          { text: `${user.title} in ${user.area}`, style: "" },
+        ],
+      ],
+    },
+    { text: "\n\n", decoration: "underline", decorationColor: "red" },
+    {
+      columns: [
+        { text: "Work Experience:", style: "header" },
+        {
+          ol: user.experience.map((exp, i) => {
+            return {
+              text: `${exp.role} at ${exp.company}`,
+              lineHeight: 1.5,
+            };
+          }),
+        },
+      ],
     },
   ];
+
+  // const content = [
+  //   { text: "CV", style: "header", alignment: "center" },
+  //   {
+  //     text: `Name: ${user.name} ${user.surname}`,
+  //     style: "subheader",
+  //   },
+  //   { image: "postImage", width: 80, height: 80 },
+  //   { text: `email: ${user.email}`, style: "subheader" },
+  //   {
+  //     text: `Currently working as: ${user.title} in ${user.area}`,
+  //     style: "subheader",
+  //   },
+  //   { text: `Experience: `, style: "header" },
+  //   {
+  //     // ol: user.experience.map((exp, i) => {
+  //     //   return {
+  //     //     text: exp.role,
+  //     //   };
+  //     // }),
+  //     ol: user.experience.map((exp, i) => ({
+  //       text: exp.role,
+  //     })),
+  //   },
+  // ];
 
   const docDefinition = {
     content: [...content],
     defaultStyle: {
       font: "Helvetica",
+      color: "grey",
+      columnGap: 20,
     },
     images: { postImage: await createBase64Image(user.image) },
     // images: { postImage: user.image.toString() },
     styles: {
       header: {
-        fontSize: 18,
+        fontSize: 15,
         bold: true,
         font: "Helvetica",
       },
@@ -52,6 +101,9 @@ export const getPdfReadableStream = async (user, userId) => {
         bold: false,
       },
     },
+    // defaultStyle: {
+    //   columnGap: 20,
+    // },
   };
 
   const pdfReadableStream = printer.createPdfKitDocument(docDefinition);
